@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual de administrador · Antea CheckIN</title>
+<meta name="description" content="Manual de administrador de Antea CheckIN: registro horario, vacaciones y documentación.">
+<!--
+══════════════════════════════════════════════════════════════
+ GUÍA RÁPIDA DE EDICIÓN  (puedes borrar este comentario)
+══════════════════════════════════════════════════════════════
+ Todo el contenido está en el bloque <main> de más abajo y el
+ índice lateral en <nav id="toc">. Los estilos están al principio
+ de este archivo, en <style>. Las imágenes están en la carpeta img/.
+
+ NOTA: cada título (h2-h5) y todo lo que hay debajo hasta el siguiente título
+       forma una "página" que se muestra al pulsar su enlace en el índice.
+       La jerarquía del índice (carpetas plegables) sale de las clases l2/l3/l4/l5.
+
+ ➊ Cambiar un texto:  busca el texto con Ctrl+F y edítalo.
+
+ ➋ Añadir un párrafo:        <p>Texto con <strong>negrita</strong>.</p>
+ ➌ Añadir una lista:         <ul><li>Elemento</li><li>Otro</li></ul>
+                             (con números: <ol> en lugar de <ul>)
+ ➍ Añadir una imagen:        copia el archivo a img/ y añade
+                             <figure><img src="img/mi-captura.png" alt="Descripción"></figure>
+                             (para imagen más estrecha: <figure class="narrow">…)
+ ➎ Añadir un aviso:          <div class="callout importante"><strong>Importante:</strong> texto</div>
+ ➏ Añadir un apartado nuevo:
+        a) en <main>, copia un bloque  <h3 id="mi-apartado">Título</h3> + su contenido
+           (h2 = capítulo, h3 = apartado, h4 = subapartado, h5 = subnivel)
+        b) en <nav id="toc">, añade  <a class="l3" href="#mi-apartado">Título</a>
+           (usa l2, l3, l4 o l5 igual que el nivel del título)
+ ➐ Eliminar un apartado:     borra su título y contenido en <main> y su
+                             enlace <a …> en <nav id="toc">.
+ ➑ Icono dentro de una frase:  <img class="icon" src="img/icono.png" alt="">
+ ➒ Vídeo (YouTube) en un apartado:
+        <div class="video"><iframe src="https://www.youtube.com/embed/ID_DEL_VIDEO"
+        title="Título" allowfullscreen loading="lazy"></iframe></div>
+══════════════════════════════════════════════════════════════
+-->
+<style>
+:root{
+  --brand:#00698f;        /* azul corporativo Antea CheckIN */
+  --brand-dark:#014e6b;
+  --brand-soft:#e7f6fb;
+  --cyan:#aafafe;
+  --orange:#fe9601;       /* vacaciones */
+  --green:#92c83d;        /* documentación */
+  --ink:#1c2b33;
+  --muted:#5b6b73;
+  --line:#d9e5ea;
+  --bg:#ffffff;
+  --radius:12px;
+  --sidebar:300px;
+  --header:64px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:calc(var(--header) + 16px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.65 "Segoe UI",system-ui,-apple-system,Roboto,"Helvetica Neue",Arial,sans-serif}
+a{color:var(--brand)}
+img{max-width:100%;height:auto}
+
+/* ── Cabecera ── */
+header.top{position:sticky;top:0;z-index:50;height:var(--header);display:flex;align-items:center;gap:14px;padding:0 20px;background:linear-gradient(90deg,var(--cyan),#d9fcfe 60%,#fff);border-bottom:1px solid var(--line)}
+header.top .logo{height:44px;width:auto}
+header.top .title{font-weight:600;color:var(--brand);font-size:1.05rem;line-height:1.2;white-space:nowrap}
+header.top .title small{display:block;font-weight:400;color:var(--muted);font-size:.78rem}
+.search{margin-left:auto;position:relative;width:min(320px,40vw)}
+.search input{width:100%;height:38px;padding:0 12px 0 36px;border:1px solid var(--line);border-radius:999px;font:inherit;font-size:.92rem;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='%2300698f' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='7' cy='7' r='5'/%3E%3Cpath d='M11 11l4 4'/%3E%3C/svg%3E") no-repeat 12px 50%}
+.search input:focus{outline:2px solid var(--brand);outline-offset:1px}
+#menu-btn{display:none;border:1px solid var(--line);background:#fff;border-radius:8px;width:40px;height:40px;font-size:20px;color:var(--brand);cursor:pointer}
+
+/* ── Estructura ── */
+.layout{display:grid;grid-template-columns:var(--sidebar) minmax(0,1fr);max-width:1320px;margin:0 auto}
+nav#toc{position:sticky;top:var(--header);align-self:start;height:calc(100vh - var(--header));overflow:auto;padding:14px 12px 40px 16px;border-right:1px solid var(--line);font-size:.9rem}
+.toc-tools{display:flex;gap:6px;margin:0 0 8px 4px}
+.toc-tools button{border:1px solid var(--line);background:#fff;color:var(--brand);border-radius:999px;font:inherit;font-size:.76rem;padding:3px 10px;cursor:pointer}
+.toc-tools button:hover{background:var(--brand-soft)}
+nav#toc .row{display:flex;align-items:flex-start;border-radius:8px}
+nav#toc .row:hover{background:var(--brand-soft)}
+nav#toc .row.active{background:var(--brand)}
+nav#toc a{flex:1;display:block;padding:6px 8px 6px 2px;color:var(--ink);text-decoration:none;line-height:1.35}
+nav#toc .row.active a{color:#fff;font-weight:600}
+nav#toc a.l2{font-weight:700;color:var(--brand)}
+nav#toc a.l4,nav#toc a.l5{color:var(--muted);font-size:.86rem}
+nav#toc .caret,nav#toc .spacer{flex:none;width:26px;height:30px}
+nav#toc .caret{border:0;background:none;cursor:pointer;color:var(--brand);padding:0;display:grid;place-items:center;border-radius:8px}
+nav#toc .caret::before{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(-45deg);transition:transform .15s}
+nav#toc .node.open > .row > .caret::before{transform:rotate(45deg)}
+nav#toc .row.active .caret{color:#fff}
+nav#toc .kids{display:none;margin-left:13px;padding-left:6px;border-left:1px solid var(--line)}
+nav#toc .node.open > .kids{display:block}
+nav#toc .node.l2{margin-top:10px}
+nav#toc .node.hidden{display:none}
+#no-results{display:none;padding:10px;color:var(--muted)}
+
+main{padding:36px clamp(20px,4vw,56px) 80px;max-width:960px}
+
+/* ── Tipografía ── */
+h2{font-size:2rem;line-height:1.2;color:var(--brand);margin:0 0 .6em;padding-bottom:.35em;border-bottom:3px solid var(--cyan)}
+section{margin:0}
+.page{display:none}
+.page.on{display:block;animation:fade .18s ease-out}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.page > :first-child{margin-top:0}
+.crumbs{font-size:.85rem;color:var(--muted);margin:0 0 10px}
+.crumbs a{color:var(--muted);text-decoration:none}
+.crumbs a:hover{color:var(--brand);text-decoration:underline}
+.crumbs span{margin:0 .4em}
+.pager{display:flex;justify-content:space-between;gap:12px;margin:48px 0 0;padding-top:20px;border-top:1px solid var(--line)}
+.pager a{display:block;max-width:48%;padding:12px 16px;border:1px solid var(--line);border-radius:var(--radius);text-decoration:none;color:var(--ink);line-height:1.3}
+.pager a:hover{border-color:var(--brand);background:var(--brand-soft)}
+.pager small{display:block;color:var(--muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.05em}
+.pager a strong{color:var(--brand)}
+.pager .next{margin-left:auto;text-align:right}
+h3{font-size:1.45rem;line-height:1.3;color:var(--brand);margin:2em 0 .5em}
+h4{font-size:1.15rem;color:var(--brand-dark);margin:1.8em 0 .4em}
+h5{font-size:1rem;color:var(--ink);margin:1.6em 0 .3em;text-transform:uppercase;letter-spacing:.04em}
+p,li{max-width:70ch}
+ul,ol{padding-left:1.4em}
+li{margin:.35em 0}
+li::marker{color:var(--brand)}
+.icon{height:1.5em;width:auto;vertical-align:-.35em;margin:0 .15em}
+.icon-list{list-style:none;padding:0}
+.icon-list li{display:flex;gap:12px;align-items:center}
+.icon-list .icon{height:2em;width:2em;object-fit:contain;flex:none;margin:0}
+
+/* ── Imágenes ── */
+figure{margin:1.4em 0;text-align:center}
+figure img{border-radius:10px;box-shadow:0 2px 14px rgba(0,60,90,.14);cursor:zoom-in;background:#fff}
+figure.narrow img{max-width:min(100%,640px)}
+figure.xs img{max-width:min(100%,360px)}
+
+/* ── Avisos ── */
+.callout{margin:1.4em 0;padding:14px 18px;border-radius:var(--radius);border-left:5px solid var(--brand);background:var(--brand-soft);font-style:italic;color:var(--brand-dark);max-width:70ch}
+.callout strong{font-style:normal}
+.callout.nota{border-color:var(--orange);background:#fff5e6;color:#7a4700}
+
+/* ── Funcionalidades ── */
+.feature-list{display:grid;gap:14px;margin:1.4em 0}
+.feature{display:flex;gap:16px;padding:16px 18px;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
+.feature h4{margin:0 0 .2em}
+.feature p{margin:0}
+.feature .num{flex:none;display:grid;place-items:center;width:38px;height:38px;border-radius:50%;border:2px solid currentColor;font-weight:700}
+.feature.f1{color:var(--brand)} .feature.f2{color:var(--orange)} .feature.f3{color:var(--green)}
+.feature h4{color:inherit}
+.feature p{color:var(--ink)}
+section.vac h2{color:var(--orange);border-color:#ffe2b3}
+section.doc h2{color:#5f9a14;border-color:#dff0bf}
+
+/* ── Vídeo ── */
+.video{position:relative;aspect-ratio:16/9;margin:1.4em 0;border-radius:var(--radius);overflow:hidden;box-shadow:0 2px 14px rgba(0,60,90,.18)}
+.video iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+/* ── Contacto ── */
+section.contact{margin-top:0}
+section.contact .page{padding:28px;border-radius:var(--radius);background:linear-gradient(135deg,var(--cyan),#e7fdff);text-align:center}
+section.contact h2{border:0;margin-bottom:.2em}
+.contact-lines{font-size:1.15rem;font-weight:600;margin:.4em auto}
+.contact-lines span{margin:0 .5em;color:var(--muted)}
+
+/* ── Buscador: resultados y resaltado ── */
+mark.hit{background:#ffe600;color:inherit;border-radius:3px;padding:0 1px;box-shadow:0 0 0 1px #e6cf00}
+mark.hit.cur{background:#ff9800;box-shadow:0 0 0 2px #ff9800}
+mark.rs{background:#ffe600;color:inherit;border-radius:3px;padding:0 1px}
+#results,#findbar{display:none}
+main.searching #results{display:block}
+main.searching .page{display:none!important}
+main.finding #findbar{display:flex}
+#findbar{position:sticky;top:calc(var(--header) + 10px);z-index:30;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 18px;padding:8px 12px;background:#fffbe0;border:1px solid #f0e07a;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1);font-size:.9rem}
+#findbar #fb-text{flex:1;min-width:140px;font-weight:600}
+#findbar button{border:1px solid #d9c84a;background:#fff;border-radius:8px;padding:4px 10px;cursor:pointer;font:inherit;font-size:.85rem}
+#findbar button:hover{background:#fff6b8}
+h2.res-h{font-size:1.3rem;border:0;margin-bottom:.8em;padding:0}
+a.res{display:block;padding:14px 16px;margin:0 0 12px;border:1px solid var(--line);border-radius:var(--radius);text-decoration:none;color:var(--ink)}
+a.res:hover{border-color:var(--brand);background:var(--brand-soft)}
+.res-path{display:block;font-size:.78rem;color:var(--muted)}
+.res-title{display:block;font-weight:700;color:var(--brand);font-size:1.1rem;margin:2px 0 6px}
+.res-title em{font-style:normal;font-weight:400;font-size:.78rem;color:var(--muted);margin-left:10px;background:var(--brand-soft);padding:2px 8px;border-radius:999px}
+.res-snip{display:block;font-size:.92rem;color:#33444c;margin:3px 0}
+
+/* ── Visor de imágenes ── */
+#lightbox{position:fixed;inset:0;z-index:100;display:none;place-items:center;background:rgba(5,25,35,.88);padding:20px;cursor:zoom-out}
+#lightbox.on{display:grid}
+#lightbox img{max-width:96vw;max-height:94vh;border-radius:8px;background:#fff}
+
+/* ── Subir ── */
+#up{position:fixed;right:18px;bottom:18px;width:44px;height:44px;border:0;border-radius:50%;background:var(--brand);color:#fff;font-size:20px;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .2s}
+#up.on{opacity:1;pointer-events:auto}
+
+/* ── Móvil ── */
+@media (max-width:900px){
+  .layout{display:block}
+  #menu-btn{display:block}
+  header.top .title small{display:none}
+  header.top .title{font-size:.95rem;white-space:normal}
+  nav#toc{position:fixed;z-index:60;top:var(--header);left:0;bottom:0;width:min(86vw,340px);height:auto;background:#fff;transform:translateX(-102%);transition:transform .22s;box-shadow:4px 0 24px rgba(0,0,0,.18)}
+  nav#toc.open{transform:none}
+  main{padding-top:24px}
+  h2{font-size:1.6rem}
+}
+@media (max-width:520px){ .search{width:44vw} header.top .logo{height:36px} }
+
+/* ── Impresión ── */
+@media print{
+  header.top,nav#toc,#up,#lightbox,.pager,.crumbs,#results,#findbar{display:none!important}
+  mark.hit{background:none;box-shadow:none}
+  .page{display:block!important;animation:none}
+  section{margin-bottom:28px}
+  .layout{display:block}
+  main{max-width:none;padding:0}
+  figure img{box-shadow:none;border:1px solid #ccc}
+  section{break-inside:auto}
+  h2,h3,h4,h5{break-after:avoid}
+  figure{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <button id="menu-btn" aria-label="Abrir índice">☰</button>
+  <img class="logo" src="img/logo.png" alt="Antea CheckIN · Registro horario">
+  <div class="title">Manual de administrador<small>Antea CheckIN · Registro horario</small></div>
+  <div class="search"><input id="q" type="search" placeholder="Buscar en el manual…" aria-label="Buscar en el manual" autocomplete="off"></div>
+</header>
+
+<div class="layout">
+
+<!-- ═════════════ ÍNDICE LATERAL ═════════════ -->
+<nav id="toc" aria-label="Índice del manual">
+<div class="toc-tools"><button type="button" id="exp-all">Desplegar todo</button><button type="button" id="col-all">Plegar todo</button></div>
+<div id="toc-list">
+<a class="l2" href="#introduccion">1. Introducción</a>
+<a class="l3" href="#que-es">¿Qué es Antea CheckIN?</a>
+<a class="l3" href="#caracteristicas">Características principales</a>
+<a class="l3" href="#ventajas">Ventajas</a>
+<a class="l2" href="#inicio-de-sesion">2. Inicio de sesión</a>
+<a class="l3" href="#primer-inicio">Primer inicio de sesión</a>
+<a class="l3" href="#recuperar-contrasena">Recuperar contraseña</a>
+<a class="l3" href="#funcionalidades">Funcionalidades</a>
+<a class="l3" href="#cambiar-contrasena">Cambiar contraseña</a>
+<a class="l2" href="#registro-horario">3. Registro horario</a>
+<a class="l3" href="#centro-de-trabajo">Centro de trabajo</a>
+<a class="l4" href="#centro-datos-generales">Datos generales</a>
+<a class="l4" href="#centro-configuracion">Configuración</a>
+<a class="l4" href="#centro-festivos">Festivos</a>
+<a class="l4" href="#exportar-centros">Exportar listado de Centros de trabajo</a>
+<a class="l4" href="#editar-centros">Editar Centros de trabajo</a>
+<a class="l3" href="#areas-de-trabajo">Áreas de trabajo</a>
+<a class="l4" href="#exportar-areas">Exportar listado de Áreas de trabajo</a>
+<a class="l3" href="#puestos-de-trabajo">Puestos de trabajo</a>
+<a class="l4" href="#exportar-puestos">Exportar listado de Puestos de trabajo</a>
+<a class="l3" href="#empleados">Empleados</a>
+<a class="l4" href="#anadir-empleado">Añadir Empleado</a>
+<a class="l5" href="#empleado-datos">Datos de Empleado</a>
+<a class="l5" href="#empleado-horarios">Horarios</a>
+<a class="l5" href="#empleado-permisos">Permisos</a>
+<a class="l5" href="#empleado-multiempleado">Aplicación Multiempleado</a>
+<a class="l4" href="#acceso-empleado">Acceso Empleado</a>
+<a class="l4" href="#importar-empleados">Importar Empleados</a>
+<a class="l4" href="#listado-empleados">Listado de Empleados</a>
+<a class="l4" href="#dar-de-baja">Dar de Baja Empleados</a>
+<a class="l4" href="#exportar-empleados">Exportar Listado de Empleados</a>
+<a class="l4" href="#resetear-clave">Resetear clave Empleado</a>
+<a class="l3" href="#accesos">Accesos</a>
+<a class="l4" href="#exportar-accesos">Exportar Listado de Accesos</a>
+<a class="l4" href="#anadir-acceso">Añadir Acceso</a>
+<a class="l4" href="#editar-acceso">Editar Acceso</a>
+<a class="l4" href="#informacion-acceso">Información de Acceso</a>
+<a class="l3" href="#incidencias">Incidencias</a>
+<a class="l4" href="#tipos-incidencias">Tipos de incidencias</a>
+<a class="l3" href="#ausencias">Ausencias</a>
+<a class="l4" href="#exportar-ausencias">Exportar Ausencias</a>
+<a class="l4" href="#editar-ausencias">Editar Ausencias</a>
+<a class="l4" href="#detalles-ausencias">Detalles Ausencias</a>
+<a class="l3" href="#empresa">Empresa</a>
+<a class="l3" href="#informes">Informes</a>
+<a class="l2" href="#vacaciones">4. Vacaciones</a>
+<a class="l3" href="#solicitudes">Solicitudes</a>
+<a class="l3" href="#vac-permisos">Permisos</a>
+<a class="l3" href="#propuestas">Propuestas</a>
+<a class="l3" href="#panel-de-control">Panel de control</a>
+<a class="l2" href="#documentacion">5. Documentación</a>
+<a class="l2" href="#manuales">6. Manual, ayuda y vídeo tutoriales</a>
+<a class="l2" href="#contacto">¿Necesita ayuda?</a>
+</div>
+<div id="no-results">Sin resultados.</div>
+</nav>
+
+<!-- ═════════════ CONTENIDO ═════════════ -->
+<main>
+<section id="sec-introduccion" class="">
+<h2 id="introduccion">1. Introducción</h2>
+<h3 id="que-es">¿Qué es Antea CheckIN?</h3>
+<p>Antea CheckIN es una herramienta líder en España para el registro horario, diseñada para cumplir con la normativa vigente y optimizar la gestión del tiempo de los empleados. Desarrollada por Antea, ofrece una solución sencilla y práctica para controlar la productividad y asistencia del personal.</p>
+<h3 id="caracteristicas">Características principales</h3>
+<ul><li><strong>Multiplataforma:</strong> Disponible en PC, tablet y móvil, permitiendo acceso desde cualquier dispositivo.</li><li><strong>Avisos y notificaciones:</strong> Configuración de alertas para recordar a los empleados cuándo registrar su entrada y salida.</li><li><strong>Importación de trabajadores:</strong> Permite registrar empleados mediante la carga de archivos CSV.</li><li><strong>Horarios de trabajo:</strong> Posibilidad de establecer horarios de trabajo para controlar accesos.</li><li><strong>Informes:</strong> Genera informes detallados de faltas, bajas y vacaciones.</li><li><strong>Control de IPs:</strong> Permite controlar desde qué direcciones IP los empleados pueden registrar sus accesos.</li><li><strong>Integración con Antea Laboral:</strong> Sincronización de datos para incluir el registro horario en las nóminas.</li></ul>
+<h3 id="ventajas">Ventajas</h3>
+<ul><li><strong>Aumento de la rentabilidad:</strong> Mejora la productividad al llevar un control eficiente del tiempo trabajado.</li><li><strong>Disponibilidad inmediata:</strong> La herramienta está lista para usarse rápidamente tras su contratación.</li><li><strong>Confidencialidad:</strong> Cumple con el Reglamento General de Protección de Datos (RGPD).</li><li><strong>Atención personalizada:</strong> Ofrece soporte personalizado para cualquier necesidad o incidencia. Puede contactar por email escribiendo a <a href="mailto:soporte@anteacheckin.es">soporte@anteacheckin.es</a> o por teléfono en el 854 63 02 86.</li></ul>
+</section>
+<section id="sec-inicio-de-sesion" class="">
+<h2 id="inicio-de-sesion">2. Inicio de sesión</h2>
+<h3 id="primer-inicio">Primer inicio de sesión</h3>
+<p>Una vez recibido el <strong>correo de bienvenida con las claves e instrucciones</strong> correspondientes, para comenzar a utilizar Antea CheckIN, el primer paso es iniciar sesión. Esto puede hacerse a través del <strong>navegador</strong>, accediendo a <a href="https://www.anteacheckin.es" target="_blank" rel="noopener"><strong>www.anteacheckin.es</strong></a>, haciendo clic en el <strong>botón de Iniciar Sesión</strong> situado en la parte superior derecha de la página web.</p>
+<p>Recordemos que la aplicación móvil es de uso exclusivo para los trabajadores; como <strong>administradores del sistema</strong>, deberemos acceder desde la <strong>página web</strong>.</p>
+<figure class=""><img src="img/p05_1.png" alt="Página de inicio de anteacheckin.es con el botón Iniciar Sesión resaltado" loading="lazy"></figure>
+<p>La primera vez que accedamos al sistema, se nos solicitará <strong>obligatoriamente que restablezcamos la contraseña</strong> por motivos de seguridad.</p>
+<p>Si en el futuro necesita reestablecer la contraseña, desde esta misma página puede seleccionar su recuperación, e inmediatamente recibirá en su correo la nueva clave de acceso.</p>
+<figure class="narrow"><img src="img/p05_2.png" alt="Ventana de inicio de sesión con el enlace Recuperar contraseña resaltado" loading="lazy"></figure>
+<h3 id="recuperar-contrasena">Recuperar contraseña</h3>
+<p>Si en el futuro el Administrador necesita reestablecer la contraseña, desde esta misma página puede seleccionar su recuperación usando la opción que se encuentra al hacer clic en Iniciar Sesión, llamada <strong>Recuperar Contraseña</strong>, pulsaremos e introduciremos los datos solicitados: CIF o NIF y el email de la empresa.</p>
+<figure class="narrow"><img src="img/p06_1.png" alt="Ventana de inicio de sesión con Recuperar contraseña resaltado" loading="lazy"></figure>
+<figure class="narrow"><img src="img/p06_2.png" alt="Formulario de recuperación con NIF y email" loading="lazy"></figure>
+<p>Tras pulsar el botón de Enviar, recibirá inmediatamente en su correo las indicaciones para recuperar la contraseña.</p>
+<figure class="narrow"><img src="img/p06_3.png" alt="Mensaje de confirmación de envío del email" loading="lazy"></figure>
+<p>El Administrador deberá de buscar en la <strong>Bandeja de entrada</strong> de su <strong>correo electrónico</strong> (incluida la carpeta de <strong>Correo No deseado o SPAM</strong>) el correo de bienvenida con remitente <strong>noreply@anteacheckin.es</strong></p>
+<p>Dentro de ese email pulsaremos el botón de Recuperar contraseña y seguiremos los pasos para ejecutar dicha acción.</p>
+<figure class="narrow"><img src="img/p07_1.png" alt="Correo electrónico de recuperación de contraseña" loading="lazy"></figure>
+<p>Introduciremos la nueva contraseña a usar por el Administrador y el proceso estaría finalizado. <strong>Recomendamos usar una contraseña con mínimo 6 caracteres que incluyan letras y números.</strong></p>
+<figure class="narrow"><img src="img/p07_2.png" alt="Pantalla para introducir la nueva contraseña" loading="lazy"></figure>
+<h3 id="funcionalidades">Funcionalidades</h3>
+<p>La primera pantalla con la que nos encontramos al acceder a Antea CheckIN nos muestra tres herramientas clave que facilitan la gestión laboral:</p>
+<figure class="narrow"><img src="img/p08_1.png" alt="Pantalla principal con Registro horario, Vacaciones y Documentación" loading="lazy"></figure>
+<div class="feature-list">
+<div class="feature f1"><span class="num">1</span><div><h4>Registro horario</h4><p>Desde esta sección, podemos acceder a todo el histórico de fichajes, ausencias, bajas médicas, permisos, y más, de todos nuestros empleados. Además, contamos con la capacidad de generar informes detallados de accesos, vacaciones, bajas médicas, etc.</p></div></div>
+<div class="feature f2"><span class="num">2</span><div><h4>Vacaciones</h4><p>Nos permite gestionar de forma eficiente las vacaciones de todos los empleados. A través de un diseño intuitivo, podemos visualizar sus peticiones, disponibilidades y asignaciones.</p></div></div>
+<div class="feature f3"><span class="num">3</span><div><h4>Documentación</h4><p>Accedemos a toda la documentación laboral, como nóminas, contratos y certificados, gracias a la integración con el programa de nóminas Antea Laboral, lo que facilita la gestión de los documentos de todos nuestros empleados.</p></div></div>
+</div>
+<h3 id="cambiar-contrasena">Cambiar contraseña</h3>
+<p>Si el Administrador, tras acceder al sistema de Antea CheckIN, necesita cambiar su contraseña por una nueva, en la parte superior derecha nos aparecerá el nombre de la empresa y el siguiente icono:</p>
+<figure class="xs"><img src="img/p09_1.png" alt="Nombre de la empresa e icono de usuario" loading="lazy"></figure>
+<p>Al hacer clic, nos llevará a la pantalla desde donde podremos restablecer la contraseña por la que deseemos.</p>
+<div class="callout importante"><strong>Importante:</strong> Recomendamos usar una contraseña con mínimo 6 caracteres que incluyan letras y números.</div>
+<p>También puede realizarse el mismo proceso si accedemos a la sección de Registro Horario, y desde el menú lateral izquierdo, tras abrir el desplegable llamado Configuración, hacemos clic en Cambiar Contraseña.</p>
+<figure class=""><img src="img/p09_2.png" alt="Menú lateral con Configuración &gt; Cambiar contraseña resaltado" loading="lazy"></figure>
+</section>
+<section id="sec-registro-horario" class="">
+<h2 id="registro-horario">3. Registro horario</h2>
+<h3 id="centro-de-trabajo">Centro de trabajo</h3>
+<p>El <strong>primer paso</strong> para comenzar a usar Antea CheckIN será crear el <strong>Centro</strong> o <strong>Centros de Trabajo</strong>.</p>
+<p>Para ello, accederemos a la sección de Registro Horario, y una vez dentro, en el menú lateral izquierdo haremos clic en <strong>Centros</strong> y posteriormente pulsaremos el botón llamado <strong>Añadir Centro</strong> que se encuentra en la parte superior.</p>
+<p><strong>Es obligatorio establecer al menos un centro de trabajo, ya que al crear un empleado obligatoriamente el sistema nos obligará asignarle al menos uno.</strong></p>
+<figure class=""><img src="img/p10_1.png" alt="Listado de centros con Centros y Añadir centro resaltados" loading="lazy"></figure>
+<p>Al hacer clic nos aparecerá una pantalla con un formulario para completar los siguientes datos del centro:</p>
+<figure class="narrow"><img src="img/p10_2.png" alt="Formulario Editar centro con las pestañas Datos generales, Configuración y Festivos" loading="lazy"></figure>
+<h4 id="centro-datos-generales">Datos generales</h4>
+<p>En esta pestaña introduciremos los datos generales correspondientes al Centro de Trabajo.</p>
+<ul><li><strong>Código:</strong> Código identificativo del centro.</li><li><strong>CCC:</strong> Código de Cuenta de Cotización de la empresa.</li><li><strong>Nombre:</strong> Nombre del centro de trabajo.</li><li><strong>Dirección:</strong> Dirección completa del centro de trabajo.</li><li><strong>Localidad:</strong> Localidad a la que pertenece el centro de trabajo.</li><li><strong>Provincia:</strong> Provincia a la que pertenece el centro de trabajo.</li><li><strong>Código postal:</strong> Código Postal a la que pertenece el centro de trabajo.</li><li><strong>Empresa:</strong> Nombre de la empresa que pertenece el centro de trabajo.</li></ul>
+<div class="callout importante"><strong>Importante:</strong> Los campos que aparezcan con un asterisco de color verde se consideran campos obligatorios.</div>
+<figure class="narrow"><img src="img/p11_1.png" alt="Pestaña Datos generales del centro" loading="lazy"></figure>
+<h4 id="centro-configuracion">Configuración</h4>
+<p>En la pestaña de Configuración, especificaremos los detalles del Centro de Trabajo.</p>
+<ul><li>Elección de Jornadas Nocturnas.</li><li>Elección de Sábados y/o domingos si son laborables.</li><li>Limitación de acceso de trabajadores según horario establecido.</li><li>Permitir a los empleados obtener informes en PDF de sus accesos.</li><li>Elección de días de vacaciones por defecto que tendrán los empleados y si son días de vacaciones laborables o naturales.</li><li>Elección de la fecha del inicio de devengo del periodo vacacional.</li><li>Días de antelación en el que un empleado pueda solicitar vacaciones.</li></ul>
+<div class="callout importante"><strong>Importante:</strong> Los campos que aparezcan con un asterisco de color verde se consideran campos obligatorios.</div>
+<figure class="narrow"><img src="img/p12_1.png" alt="Pestaña Configuración del centro" loading="lazy"></figure>
+<h4 id="centro-festivos">Festivos</h4>
+<p>En esta última pestaña añadiremos los festivos locales o autonómicos, ya que los festivos anuales estarán ya predefinidos.</p>
+<p>Para añadir un festivo local o autonómico pulsaremos el botón superior llamado <strong>Añadir Festivo</strong>. Rellenaremos los datos necesarios y pulsaremos el botón de Aceptar.</p>
+<figure class="narrow"><img src="img/p13_1.png" alt="Pestaña Festivos con la ventana Nuevo festivo" loading="lazy"></figure>
+<p>Una vez hayamos rellenado los Datos Generales, Configuración y Festivos de nuestro Centro de trabajo, habremos completado el primer paso y se nos mostrará nuestro centro en el Listado de Centros.</p>
+<p>Podemos añadir tantos Centros de trabajo como nuestra actividad requiera.</p>
+<h4 id="exportar-centros">Exportar listado de Centros de trabajo</h4>
+<p>El botón <strong>Exportar</strong> que se encuentra en la parte superior nos permitirá descargar un listado de los centros de trabajo que tenemos creados en nuestra empresa.</p>
+<p>El listado se podrá descargar en diferentes formatos (.xls, .xlsx, .csv) listos para ser leídos por procesadores de hojas de cálculo (como, por ejemplo, Excel).</p>
+<figure class=""><img src="img/p14_1.png" alt="Botón Exportar en el listado de centros" loading="lazy"></figure>
+<h4 id="editar-centros">Editar Centros de trabajo</h4>
+<p>Si necesitamos editar algún dato de nuestro centro, haremos clic en el botón de <strong>Acciones</strong> y haremos las modificaciones necesarias.</p>
+<figure class=""><img src="img/p14_2.png" alt="Botón de Acciones para editar un centro" loading="lazy"></figure>
+<h3 id="areas-de-trabajo">Áreas de trabajo</h3>
+<p>Si nuestra empresa opera en distintas áreas (ciudades, zonas o países), será el momento de crearlas, para posteriormente poder asignar un centro y un área a cada trabajador. Para ello, en el menú iremos a <strong>Configuración &gt; Áreas &gt; Añadir área</strong>.</p>
+<figure class=""><img src="img/p15_1.png" alt="Menú Configuración &gt; Áreas &gt; Añadir área" loading="lazy"></figure>
+<p>Introduciremos el nombre del Área que deseamos añadir y pulsaremos en Guardar.</p>
+<figure class="narrow"><img src="img/p15_2.png" alt="Ventana para añadir un área" loading="lazy"></figure>
+<h4 id="exportar-areas">Exportar listado de Áreas de trabajo</h4>
+<p>El botón “Exportar” que se encuentra en la parte superior nos permitirá sacar un listado de las áreas que tenemos creadas en nuestra empresa. Todas ellas se podrán descargar en diferentes formatos (.xls, .xlsx, .csv) aceptados por procesadores de hojas de cálculo.</p>
+<figure class="narrow"><img src="img/p15_3.png" alt="Opciones de exportación del listado de áreas" loading="lazy"></figure>
+<h3 id="puestos-de-trabajo">Puestos de trabajo</h3>
+<p>Crearemos por último los distintos puestos de trabajo, accediendo al menú lateral izquierdo dentro de la sección de Registro Horario, desde <strong>Configuración &gt; Puestos de Trabajo &gt; Añadir Puestos de Trabajo</strong>.</p>
+<figure class=""><img src="img/p16_1.png" alt="Menú Configuración &gt; Puestos de trabajo" loading="lazy"></figure>
+<p>Escribiremos el Nombre del Puesto de Trabajo que necesitemos crear y seleccionaremos la empresa a la que pertenece, tras ello pulsaremos en Guardar.</p>
+<figure class="narrow"><img src="img/p16_2.png" alt="Formulario para añadir un puesto de trabajo" loading="lazy"></figure>
+<h4 id="exportar-puestos">Exportar listado de Puestos de trabajo</h4>
+<p>El botón <strong>Exportar</strong> que se encuentra en la parte superior nos permitirá sacar un listado de los puestos de trabajo que tenemos creados en nuestra empresa. Todos ellos pueden descargarse en diferentes formatos (.xls, .xlsx, .csv) aceptados por procesadores de hojas de cálculo.</p>
+<figure class=""><img src="img/p17_1.png" alt="Botón Exportar en el listado de puestos de trabajo" loading="lazy"></figure>
+<figure class="narrow"><img src="img/p17_2.png" alt="Opciones de exportación del listado de puestos de trabajo" loading="lazy"></figure>
+<h3 id="empleados">Empleados</h3>
+<p>Una vez creados los Centros, las Áreas y los Puestos de Trabajo de nuestra empresa, procederemos a dar de alta a los empleados.</p>
+<p>Para ello, nos iremos en el menú lateral izquierdo dentro de la sección de Registro Horario al apartado <strong>Empleados &gt; Listado de empleados</strong>.</p>
+<figure class=""><img src="img/p18_1.png" alt="Menú Empleados &gt; Listado de empleados" loading="lazy"></figure>
+<p>Existen dos vías para añadir a los empleados:</p>
+<ol><li><strong>Manualmente</strong>, de manera individual, mediante el botón <strong>Añadir empleado</strong>.</li><li><strong>Masivamente</strong>, importando un archivo externo (tipo Excel) utilizando el botón <strong>Importación</strong>.</li></ol>
+<figure class=""><img src="img/p18_2.png" alt="Botones Añadir empleado e Importación" loading="lazy"></figure>
+<h4 id="anadir-empleado">Añadir Empleado</h4>
+<p>Para añadir a nuestro empleado pulsaremos el botón superior llamado <strong>Añadir Empleado</strong> y comenzaremos a cumplimentar los datos. Tras pulsar el botón de Añadir Empleado nos encontraremos con diferentes pestañas de configuración del empleado: <strong>Datos de Empleado, Horarios y Permisos</strong>.</p>
+<figure class=""><img src="img/p19_1.png" alt="Ventana Nuevo empleado" loading="lazy"></figure>
+<div class="callout importante"><strong>Importante:</strong> Si la empresa es de nueva creación, deberá crear los Centros de Trabajo antes de crear o importar los empleados ya que el sistema de Antea CheckIN nos obliga asignar al menos un centro a un empleado.</div>
+<h5 id="empleado-datos">Datos de Empleado</h5>
+<p>La pestaña de Datos de Empleado la dividiremos en Datos personales y Datos Profesionales.</p>
+<figure class="narrow"><img src="img/p19_2.png" alt="Pestaña Datos de empleado con Datos personales y Datos profesionales resaltados" loading="lazy"></figure>
+<p>Rellenaremos los siguientes datos en el apartado de <strong>Datos Personales</strong>:</p>
+<p>Nombre y apellidos, Email, Iniciales, Teléfono, NSS (Número de seguridad social), NIF (con letra mayúscula), Fecha Antigüedad (en la empresa) y Fecha de ingreso.</p>
+<figure class="narrow"><img src="img/p20_1.png" alt="Formulario de datos personales del empleado" loading="lazy"></figure>
+<div class="callout importante"><strong>Importante:</strong> Revisar que no existan espacios al incluir la información solicitada del empleado.</div>
+<p>Seleccionaremos según los desplegables los siguientes datos en el apartado de <strong>Datos Profesionales</strong>: Empresa, Centro de Trabajo, Área y Puesto de trabajo.</p>
+<p>Gracias a los apartados que hemos visto anteriormente (Crear Centro, Crear Área, Crear Puesto de trabajo) cada uno de ellos nos aparecerán en los desplegables correspondientes. Los datos con asterisco de color verde son <strong>campos obligatorios</strong>.</p>
+<figure class="narrow"><img src="img/p20_2.png" alt="Formulario de datos profesionales del empleado" loading="lazy"></figure>
+<h5 id="empleado-horarios">Horarios</h5>
+<p>Desde la pestaña de Horarios tendremos que seleccionar el tipo de contrato (Completo o Parcial), la zona horaria (Peninsular o Insular), el <strong>número de horas semanales del empleado o si cuenta con horario flexible</strong>.</p>
+<p>Si marca la opción horario flexible, el empleado podrá registrar los accesos de entrada y salida de forma libre sin limitarse a un horario. Este empleado, al tener configurado el horario flexible, no aparecerá en el informe de Ausencias.</p>
+<p>Si no elegimos la opción de horario flexible, tendremos que configurar el horario de nuestro empleado manualmente.</p>
+<figure class="narrow"><img src="img/p21_1.png" alt="Pestaña Horarios del empleado" loading="lazy"></figure>
+<h5 id="empleado-permisos">Permisos</h5>
+<p>Se definen aquí los permisos que el empleado tenga con respecto a la propia aplicación Antea CheckIN.</p>
+<p>Seleccionaremos si queremos que tenga permisos de Empleado o Supervisor, pudiendo este último supervisar a los empleados de uno o más centros de trabajo.</p>
+<figure class="narrow"><img src="img/p22_1.png" alt="Pestaña Permisos del empleado" loading="lazy"></figure>
+<p>Una vez hayamos rellenado los datos del empleado, sus horarios y permisos de usuario, haremos clic en Guardar, y se nos añadirá nuestro empleado al Listado de Empleados.</p>
+<h5 id="empleado-multiempleado">Aplicación Multiempleado</h5>
+<p>Esta nueva pestaña aparece cuando volvemos a editar nuestro empleado ya creado. Solo deberemos rellenarla en caso de tener contratado Antea CheckIN Multiempleado, una herramienta diferente a Antea CheckIN, pensada para aquellas empresas que quieran que el fichaje de todos sus empleados se realice a través de un único dispositivo común (una tablet) para todos.</p>
+<p>Asignaremos el nombre de usuario y la contraseña del empleado que usará en la aplicación de Antea CheckIN Multiempleado.</p>
+<p>Si estos campos no se rellenan, de manera automática se establecerá su NIF con la letra en mayúsculas como nombre de usuario y clave de acceso a la aplicación.</p>
+<figure class="narrow"><img src="img/p23_1.png" alt="Pestaña Aplicación Multiempleado" loading="lazy"></figure>
+<h4 id="acceso-empleado">Acceso Empleado</h4>
+<p>Una vez añadido nuestro empleado al Listado de Empleados, el empleado tendrá acceso al sistema de Antea CheckIN. Tanto su usuario como su contraseña serán <strong>su NIF con letra mayúscula</strong>.</p>
+<p>Tras su primer acceso, le pedirá cambiar su contraseña por la que el empleado desee por seguridad.</p>
+<figure class=""><img src="img/p23_2.png" alt="Listado de empleados con los empleados creados" loading="lazy"></figure>
+<h4 id="importar-empleados">Importar Empleados</h4>
+<p>Existe la opción de importar empleados desde la pantalla de Listados de Empleados usando el botón llamado “Importación” que se encuentra en la parte superior.</p>
+<figure class=""><img src="img/p24_1.png" alt="Botón Importación resaltado" loading="lazy"></figure>
+<p>Al hacer clic, se nos abrirá una pestaña con tres opciones:</p>
+<ul><li><strong>Buscar:</strong> importar el archivo desde nuestro ordenador (haciendo clic en Buscar).</li><li><strong>Descargar Plantilla:</strong> nos descargará un fichero en formato .csv que editaremos según el esquema indicado en la plantilla.</li><li><strong>Descargar Manual:</strong> manual de uso de la plantilla para poder editar correctamente y que pueda ser importada sin errores.</li></ul>
+<figure class="narrow"><img src="img/p24_2.png" alt="Ventana de importación de empleados" loading="lazy"></figure>
+<h4 id="listado-empleados">Listado de Empleados</h4>
+<p>Una vez creados nuestros empleados, nuestro listado de empleados se verá del siguiente modo:</p>
+<figure class=""><img src="img/p25_1.png" alt="Listado de empleados con la columna de acciones resaltada" loading="lazy"></figure>
+<p>Las acciones que podremos realizar desde este panel serán gracias a los iconos de la parte de la derecha, cuyas funciones explicamos a continuación:</p>
+<ul class="icon-list"><li><img class="icon" src="img/p25_2.png" alt="Editar"> Editar los datos del empleado.</li><li><img class="icon" src="img/p25_icon_pdf.png" alt="Informe"> Generar informe ‘Resumen de asistencia’ del mes actual.</li><li><img class="icon" src="img/p25_icon_acc.png" alt="Accesos"> Ir al listado accesos del empleado.</li><li><img class="icon" src="img/p25_icon_del.png" alt="Dar de baja"> Dar de baja empleado. Esto hará que el empleado desaparezca de nuestro listado. Seleccionando la fecha que será efectiva su baja.</li></ul>
+<h4 id="dar-de-baja">Dar de Baja Empleados</h4>
+<p>Tal y como hemos explicado en el punto anterior si queremos dar de baja a un empleado, podemos hacerlo dando clic en el icono de la papelera.</p>
+<h4 id="exportar-empleados">Exportar Listado de Empleados</h4>
+<p>El botón <strong>Exportar</strong> que se encuentra en la parte superior nos permitirá sacar un listado de los empleados que tenemos creados en nuestra empresa, en diferentes formatos (.xls, .xlsx, .csv). Todos ellos aceptados por procesadores de hojas de cálculo.</p>
+<figure class="narrow"><img src="img/p25_4.png" alt="Botón Exportar resaltado" loading="lazy"></figure>
+<h4 id="resetear-clave">Resetear clave Empleado</h4>
+<p>Si un empleado tiene un error con su clave y no quiere recurrir al proceso de recuperar contraseña, el perfil administrador podrá Resetear la clave del empleado.</p>
+<p>Para realizarlo, accederemos a <strong>Listado de Empleados &gt; Empleados &gt; Seleccionaremos a nuestro empleado &gt; Datos Personales</strong> y usaremos el botón llamado <strong>Resetear Clave</strong>.</p>
+<figure class="narrow"><img src="img/p26_1.png" alt="Botón Resetear clave en los datos personales del empleado" loading="lazy"></figure>
+<p>Tras resetear la clave, la nueva contraseña del empleado volverá a ser su <strong>NIF con la letra mayúscula</strong>.</p>
+<h3 id="accesos">Accesos</h3>
+<p>Desde este menú podremos supervisar los accesos de todos los empleados. Para acceder a él, pulsaremos en el desplegable del menú lateral izquierdo dentro de la sección de Registro Horario llamado <strong>Empleados</strong> y posteriormente en <strong>Accesos</strong>.</p>
+<p>Por defecto se muestran los registros del mes actual. Si queremos establecer otros criterios, pulsaremos el botón <strong>Filtrar</strong> y nos permitirá elegir diferentes fechas.</p>
+<figure class=""><img src="img/p27_1.png" alt="Listado de accesos con el botón Filtrar" loading="lazy"></figure>
+<p>Gracias al <strong>Buscador</strong> que tenemos en la parte superior derecha podremos filtrar por el texto que deseemos y en nuestro listado solo aparecerán las búsquedas relacionadas con el texto que hemos escrito.</p>
+<figure class=""><img src="img/p27_2.png" alt="Buscador del listado de accesos" loading="lazy"></figure>
+<h4 id="exportar-accesos">Exportar Listado de Accesos</h4>
+<p>El botón <strong>Exportar</strong>, ubicado en la parte superior, nos permitirá generar un listado de accesos de todos nuestros empleados del mes actual (si no hemos aplicado filtros o utilizado el buscador) en varios formatos compatibles con procesadores de hojas de cálculo (tipo Excel), como .xls, .xlsx y .csv.</p>
+<figure class=""><img src="img/p28_1.png" alt="Botón Exportar en el listado de accesos" loading="lazy"></figure>
+<h4 id="anadir-acceso">Añadir Acceso</h4>
+<p>El sistema nos permite crear un nuevo Acceso para casos excepcionales por olvido del empleado, usando el botón superior de <strong>Añadir acceso</strong>.</p>
+<p>Desde esta opción seleccionaremos el empleado, si es un registro de entrada o salida y su fecha correspondiente (incluida la hora).</p>
+<div class="callout importante"><strong>Importante:</strong> Hay que mantener el formato que se muestra para la hora, incluyendo los dos puntos “:”</div>
+<figure class="narrow"><img src="img/p28_2.png" alt="Ventana para añadir un acceso" loading="lazy"></figure>
+<h4 id="editar-acceso">Editar Acceso</h4>
+<p>El sistema de Antea CheckIN también permite editar, excepcionalmente, la fecha y hora del Acceso creado con anterioridad por algún empleado.</p>
+<p>Nos desplazaremos al acceso en cuestión que queremos editar y usaremos el botón <img class="icon" src="img/p29_1.png" alt="Editar"> para acceder a su edición.</p>
+<figure class=""><img src="img/p29_2.png" alt="Listado de accesos con el botón de edición" loading="lazy"></figure>
+<h4 id="informacion-acceso">Información de Acceso</h4>
+<p>Usaremos el botón de información <img class="icon" src="img/p29_3.png" alt="Información"> para conocer más información del acceso solicitado en función del origen. Este botón se encuentra en la parte de la derecha del acceso solicitado.</p>
+<p>Dependiendo de si el acceso es a través de la web o desde la aplicación del móvil, nos dará más información acerca de la ubicación del acceso. Si es a través de la web nos mostrará la IP desde la cual se ha realizado el acceso y si es a través de la aplicación móvil, nos aparecerá un mapa con la ubicación.</p>
+<p>También desde el botón de <strong>Datos ampliados</strong>, que se encuentra en la parte superior, nos aparecerá más información como la calle, la población… desde donde se ha realizado el acceso.</p>
+<figure class=""><img src="img/p29_4.png" alt="Listado de accesos con el botón de información" loading="lazy"></figure>
+<h3 id="incidencias">Incidencias</h3>
+<p>Las incidencias acreditan la ausencia del empleado extendiéndose en el tiempo debido por ejemplo a una incapacidad laboral de la persona trabajadora.</p>
+<p>Desde esta opción veremos y gestionaremos las incidencias y bajas médicas de los empleados.</p>
+<p>Para añadir una nueva incidencia usaremos el botón superior llamado <strong>“Añadir Incidencia”</strong>.</p>
+<figure class=""><img src="img/p30_1.png" alt="Listado de incidencias" loading="lazy"></figure>
+<p>Para editar una incidencia ya almacenada, de forma puntual, usaremos el icono <img class="icon" src="img/p30_2.png" alt="Editar"> que se encuentra en la parte de la derecha de la línea solicitada de la incidencia.</p>
+<p>También con el icono de la papelera <img class="icon" src="img/p30_3.png" alt="Eliminar"> de la parte de la derecha nos permitirá eliminar la incidencia creada.</p>
+<h4 id="tipos-incidencias">Tipos de incidencias</h4>
+<p>El sistema de Antea CheckIN permite seleccionar las siguientes incidencias:</p>
+<ul><li>Falta No Justificada</li><li>Falta Justificada</li><li>Baja Temporal sin Contrato</li><li>Suspensión de empleo y sueldo</li><li>Expediente de Regulación de Empleo</li><li>Expediente de Regulación de Empleo parcial</li><li>Huelga inferior a un día</li><li>Huelga superior a un día</li></ul>
+<h3 id="ausencias">Ausencias</h3>
+<p>Las ausencias acreditan la falta de presencia de un trabajador en su lugar de trabajo durante el horario laboral, ya sea de manera justificada o injustificada.</p>
+<p>Podremos añadir ausencias a los empleados usando el botón <strong>Añadir ausencia</strong>; para ello seleccionamos al empleado, el tipo de ausencia y la fecha de ésta. También podremos editar la fecha de inicio y fin de la ausencia del empleado.</p>
+<figure class=""><img src="img/p31_1.png" alt="Listado de ausencias" loading="lazy"></figure>
+<p>Existen dos tipos de ausencia:</p>
+<ul><li>Falta Justificada</li><li>Falta no Justificada</li></ul>
+<figure class=""><img src="img/p31_2.png" alt="Ventana para añadir una ausencia" loading="lazy"></figure>
+<h4 id="exportar-ausencias">Exportar Ausencias</h4>
+<p>El botón <strong>Exportar</strong> que se encuentra en la parte superior nos permitirá sacar un listado de ausencias que tenemos creado en nuestra empresa en diferentes formatos (.xls, .xlsx, .csv) aceptados por procesadores de hojas de cálculo.</p>
+<figure class=""><img src="img/p32_1.png" alt="Botón Exportar en el listado de ausencias" loading="lazy"></figure>
+<h4 id="editar-ausencias">Editar Ausencias</h4>
+<p>El sistema de Antea CheckIN también permite editar para casos excepcionales la fecha de la ausencia creada con anterioridad.</p>
+<p>Nos desplazaremos a la ausencia en cuestión que queremos editar y usaremos el botón <img class="icon" src="img/p32_2.png" alt="Editar"> para acceder a su edición.</p>
+<h4 id="detalles-ausencias">Detalles Ausencias</h4>
+<p>También en la columna Detalles, tenemos el botón <img class="icon" src="img/p32_3.png" alt="Conversación"> que nos habilita una ventana emergente que nos permite tener una conversación con el Empleado en relación a la ausencia la cual hemos seleccionado.</p>
+<figure class=""><img src="img/p32_4.png" alt="Ventana de conversación sobre la ausencia" loading="lazy"></figure>
+<h3 id="empresa">Empresa</h3>
+<p>Contiene la/s empresa/s que gestionamos. Estas habrán sido cargadas previamente al sistema por el equipo de soporte de Antea CheckIN.</p>
+<p>Independientemente del usuario con el que entremos, siempre visualizaremos los empleados de todas nuestras empresas.</p>
+<figure class=""><img src="img/p33_1.png" alt="Listado de empresas" loading="lazy"></figure>
+<p>Podremos editar los datos de nuestra empresa, como el nombre de contacto, el email y la dirección, así como añadir el logo y sello personalizados… haciendo clic en el botón de <strong>Editar Empresa</strong>.</p>
+<p>El botón <strong>Configuración de IPs</strong> permite gestionar las direcciones IP que el sistema de Antea CheckIN reconocerá como válidas. De esta manera, a través del informe de IPs Incorrectas, el Administrador podrá identificar desde qué direcciones IP distintas a las registradas han accedido los empleados al sistema. En otras palabras, estas direcciones IP determinan si el acceso de un empleado a la aplicación web de Antea CheckIN es correcto o no.</p>
+<p>Podemos añadir, editar o eliminar las IPs que necesitemos.</p>
+<h3 id="informes">Informes</h3>
+<p>Antea CheckIN también nos ofrece la opción de descargar distintos tipos de informes en formato PDF.</p>
+<p>Desde esta opción del menú podrá generar y ver distintos informes de asistencia, de accesos mediante IPs incorrectas, accesos erróneos, ausencias, incidencias o vacaciones. También es posible exportar información como vacaciones y ausencias de los empleados, a Antea Laboral, mediante ficheros CSV.</p>
+<figure class=""><img src="img/p34_1.png" alt="Menú de informes" loading="lazy"></figure>
+<p>Para generar los informes de accesos (Resumen y Detallado) debe elegir el Centro de Trabajo y mes para que se genere el informe.</p>
+<p>El <strong>Informe Resumen</strong> muestra para cada empleado su registro de entrada, salida, horas de trabajo y de pausa de cada día del mes.</p>
+<p>El <strong>Informe Detallado</strong> muestra para cada empleado su registro de entrada y salida, así como desde dónde lo ha realizado, ya sea su IP si es mediante web o la localización si es mediante la app móvil.</p>
+<p>El <strong>informe de IPs incorrectas</strong> mostrará la información relativa al empleado, día, hora, etc. desde el que se ha producido el registro con la IP no registrada en Antea CheckIN.</p>
+<p>El <strong>Informe de Vacaciones</strong> muestra las fechas desde y hasta de las vacaciones de sus empleados.</p>
+<p>Para los informes de Accesos Erróneos, Ausencias e Incidencias puede elegir la empresa o empresas para las que se generará el informe (si no selecciona ninguna se generará para todas sus empresas), así como el rango de fechas necesario para mostrar el informe.</p>
+<p>El <strong>informe de Accesos erróneos</strong> debe ser frecuentemente utilizado para conocer qué empleados les falta el registro de entrada o salida en la aplicación.</p>
+<p>El <strong>informe de Ausencias</strong> le permite seleccionar dos opciones, Faltas o Ausencia de fichajes. El informe de Faltas genera un informe similar al de Incidencias, pero sólo para las incidencias del tipo Falta Justificada y Falta No Justificada introducidas en el sistema.</p>
+<p>Las <strong>Ausencias de fichajes</strong> calculan y muestran aquellos empleados para los que hay un día que no han efectuado ningún registro ni de Entrada ni de Salida, entendiendo esto como una ausencia laboral. Para ello el sistema tiene en cuenta los festivos nacionales del centro de trabajo, las incidencias y los días de vacaciones del empleado. Se muestra además el Puesto de Trabajo del empleado, así como su teléfono. No se mostrarán en este informe los empleados que tengan marcada en su ficha la opción de Horario Flexible.</p>
+<p>El <strong>Informe de Incidencias</strong> muestra las incidencias de los empleados en las fechas indicadas, así como los días al año que el empleado no ha podido trabajar por una incidencia.</p>
+<p>El <strong>informe de Bajas Médicas</strong> muestra la misma información que el de Incidencias, pero sólo para las incidencias del tipo Incapacidad Temporal. Pueden marcar la opción de no incluir Paternidades / Maternidades / Riesgos.</p>
+<p>Desde la opción de <strong>Exportar a Laboral</strong> podrá generar ficheros CSV con las Vacaciones y Ausencias de sus empleados filtrando los datos por mes y año para las Vacaciones o eligiendo la empresa o empresas y el rango de fechas correspondiente para las Ausencias.</p>
+</section>
+<section id="sec-vacaciones" class="vac">
+<h2 id="vacaciones">4. Vacaciones</h2>
+<p>En la sección de Vacaciones podrá visualizar y gestionar de manera fácil e intuitiva las vacaciones de sus empleados, facilitando así una administración eficiente de este aspecto clave en su empresa.</p>
+<figure class=""><img src="img/p36_1.png" alt="Sección de vacaciones" loading="lazy"></figure>
+<h3 id="solicitudes">Solicitudes</h3>
+<p>Podrá gestionar las vacaciones de sus empleados desde la pestaña <strong>Solicitudes</strong>. El menú superior dentro del apartado de Solicitudes consta de varias secciones.</p>
+<p>El botón de <strong>Selección de ejercicios</strong> nos permite seleccionar entre el ejercicio actual, el ejercicio anterior y el ejercicio posterior del actual.</p>
+<p>Al acceder el sistema automáticamente siempre nos ubicará en el ejercicio actual para solicitar vacaciones, pero podremos alternar entre el anterior y el año próximo si nos interesa.</p>
+<figure class="narrow"><img src="img/p36_2.png" alt="Selector de ejercicios" loading="lazy"></figure>
+<p>El botón <strong>Selector de Empleado</strong> nos permite seleccionar entre los diferentes empleados que tenemos dados de alta en nuestra empresa en función del centro al que pertenezca.</p>
+<figure class=""><img src="img/p37_1.png" alt="Selector de empleado" loading="lazy"></figure>
+<p>El botón de selector <strong>Todos o Pendientes</strong> nos muestra todos los empleados de nuestra empresa o solo los empleados que tenemos solicitudes pendientes de vacaciones de ese ejercicio seleccionado.</p>
+<figure class=""><img src="img/p37_2.png" alt="Selector Todos o Pendientes" loading="lazy"></figure>
+<p>El <strong>Calendario</strong> es la principal zona de la pantalla. Aquí visualizaremos los 12 meses que comprende nuestro periodo de devengo de las vacaciones, los cuales están conjuntamente relacionados con el año que tengamos establecido en el Selector y con la fecha fin de devengo de las vacaciones que establezca nuestra empresa.</p>
+<figure class="narrow"><img src="img/p37_3.png" alt="Calendario de vacaciones" loading="lazy"></figure>
+<p>La fecha de inicio de Devengo de las Vacaciones se configura en la pestaña Configuración de la edición del Centro.</p>
+<figure class="narrow"><img src="img/p38_1.png" alt="Configuración del inicio de devengo en el centro" loading="lazy"></figure>
+<p>Pongamos un ejemplo. En mi empresa el fin de devengo es el 31/12. Por tanto, los 12 meses a mostrar por defecto están comprendidos entre enero y diciembre de un mismo año natural. Este caso implica un comportamiento normal en el sistema. La fecha de inicio de devengo de las vacaciones que seleccionaremos en la edición del centro será 01/01.</p>
+<p>Pero si, por otras circunstancias, en mi empresa el fin de devengo es el 31/01, entonces los 12 meses a mostrar por defecto están comprendidos entre febrero (año en curso) y enero (año siguiente). En esta situación, cuando llegue el caso de asignar vacaciones correspondientes a días de enero, el botón Selector debe seleccionarse en el año actual, ya que esos días corresponden aún al período de vacaciones de nuestro año de devengo.</p>
+<figure class="narrow"><img src="img/p39_1.png" alt="Detalle de un mes del calendario" loading="lazy"></figure>
+<p>En cada mes del calendario podemos visualizar:</p>
+<ul><li><strong>Domingo y sábados:</strong> desactivados si nuestras vacaciones son de tipo Días Laborales, y activados si son de tipo Días Naturales. También serán activados si se marca la opción de Sábado o Domingo laborable. Este apartado se configura en la edición del Centro.</li><li><strong>Festivos:</strong> desactivados en función de los festivos configurados en la edición del centro de nuestra empresa.</li><li><strong>El resto de días</strong> estarán disponibles para poder ser solicitados siempre.</li></ul>
+<p>Para seleccionar los días que queremos asignar de vacaciones, si son varios días debemos hacer una selección múltiple, para lo que tenemos dos opciones:</p>
+<ol><li>Tecla <strong>Control + clic</strong> botón izquierdo del ratón, para ir seleccionando uno a uno.</li><li>Seleccionamos el primer día de vacaciones y, sin soltar el botón izquierdo del ratón, vamos arrastrando hasta el último día, y soltamos.</li></ol>
+<p>Cuando tengamos seleccionados los días que deseemos asignar al trabajador, pulsaremos el botón <strong>Solicitar</strong> y esos días quedarán directamente aprobados al trabajador que tengamos seleccionado. Esos días aparecerán de color verde en el calendario.</p>
+<figure class=""><img src="img/p40_1.png" alt="Días de vacaciones aprobados en verde" loading="lazy"></figure>
+<p>Igualmente, se podrán eliminar días de vacaciones ya aprobados simplemente haciendo clic en el día correspondiente y en <strong>Eliminar solicitud</strong>.</p>
+<figure class=""><img src="img/p40_2.png" alt="Eliminar una solicitud de vacaciones" loading="lazy"></figure>
+<p>Cuando sea el empleado quien nos solicite las vacaciones, nos aparecerá una notificación en color rojo. El número dependerá de la cantidad de empleados que le han solicitado vacaciones al Administrador o Supervisor. Al pulsar sobre el número nos mostrará las solicitudes pendientes.</p>
+<figure class="xs"><img src="img/p40_3.png" alt="Notificación de solicitudes pendientes" loading="lazy"></figure>
+<p>Podemos tener solicitudes pendientes tanto en el año actual como en el año siguiente, por lo que tendremos que usar el Selector de año para poder visualizar las solicitudes de un año u otro.</p>
+<p>El Administrador o Supervisor podrá aprobar o rechazar de forma masiva todas las vacaciones de un empleado sin tener que ir día a día gracias al botón de <strong>Aceptar/Denegar todo</strong> de dichas solicitudes de días de vacaciones.</p>
+<figure class="narrow"><img src="img/p41_1.png" alt="Botón Aceptar/Denegar todo" loading="lazy"></figure>
+<p>También podremos aprobar o cancelar dicha solicitud de días del empleado individualmente día a día. Si pulsamos sobre el día solicitado por el empleado, se nos abrirá un desplegable para aprobar o rechazar solicitud.</p>
+<p>Por último, ubicado justo debajo del botón Solicitar, se encuentra el cuadro resumen con los días de vacaciones del trabajador seleccionado:</p>
+<ul><li><strong>Total Días:</strong> número total de días de vacaciones asignados al trabajador por año. Si pulsamos sobre él, podremos sumar o restar un número determinado de días de vacaciones a ese trabajador en particular en caso de que exista una situación puntual que lo requiera.</li><li><strong>Disfrutados:</strong> muestra la suma de los días ya aprobados y los que están pendientes de disfrute.</li><li><strong>Por Disfrutar:</strong> número de días de vacaciones que todavía le quedan al trabajador por solicitar.</li><li><strong>Seleccionados:</strong> al realizar una nueva solicitud, se indica aquí el número de días seleccionados, que nunca podrá ser superior al número de días disponibles en por disfrutar.</li></ul>
+<figure class="narrow"><img src="img/p42_1.png" alt="Cuadro resumen de días de vacaciones" loading="lazy"></figure>
+<h3 id="vac-permisos">Permisos</h3>
+<p>La pestaña de Permisos nos mostrará los empleados que actuarán como <strong>supervisores de la sección de Vacaciones del centro que seleccione</strong>.</p>
+<p>Podremos seleccionar los empleados que deseemos si queremos delegar dichas funciones a un empleado de confianza con el botón <strong>Añadir supervisor</strong>.</p>
+<figure class=""><img src="img/p42_2.png" alt="Pestaña Permisos de vacaciones" loading="lazy"></figure>
+<h3 id="propuestas">Propuestas</h3>
+<p>La pestaña de Propuestas nos mostrará los centros de trabajo en los que podremos crear propuestas de vacaciones para nuestros empleados.</p>
+<p>Para que los diferentes centros creados en nuestra empresa aparezcan en este apartado, es necesario que cada uno tenga al menos un empleado asignado, con su área y puesto de trabajo debidamente configurados.</p>
+<figure class=""><img src="img/p43_1.png" alt="Pestaña Propuestas" loading="lazy"></figure>
+<p>Los botones de la columna Acciones ubicados a la derecha de cada centro proporcionan acceso a la información de los empleados, un enlace directo al apartado de vacaciones y la opción de editar las propuestas de vacaciones correspondientes a ese centro. Al editar, podremos añadir el periodo de propuestas vacacional pulsando en <strong>Añadir Periodo</strong>:</p>
+<figure class="narrow"><img src="img/p43_2.png" alt="Ventana Añadir periodo" loading="lazy"></figure>
+<p>En esta sección debemos definir los parámetros del período de vacaciones que estamos configurando:</p>
+<ul><li><strong>Fechas “desde” y “hasta”:</strong> establecen el rango de tiempo en el que los empleados podrán solicitar vacaciones.</li><li><strong>Días Vacaciones:</strong> indica la cantidad mínima de días de vacaciones que un empleado debe pedir dentro de ese período.</li><li><strong>Max trabajadores:</strong> determina cuántos trabajadores como máximo pueden solicitar vacaciones el mismo día dentro de ese período.</li></ul>
+<p>Una vez configurados estos datos, los días incluidos en el período aparecerán resaltados en color rosa en el calendario. Además, al situar el cursor sobre cualquiera de esos días, el sistema mostrará la información sobre las plazas disponibles, es decir, cuántos empleados aún pueden solicitar vacaciones en esa fecha.</p>
+<figure class=""><img src="img/p44_1.png" alt="Calendario con el período de propuestas resaltado en rosa" loading="lazy"></figure>
+<h3 id="panel-de-control">Panel de control</h3>
+<p>La pestaña de Panel de Control nos mostrará el calendario de vacaciones de los empleados del centro que hayamos seleccionado previamente. También debemos de elegir entre la opción Pendientes o Aprobados (días de vacaciones).</p>
+<figure class=""><img src="img/p45_1.png" alt="Panel de control de vacaciones" loading="lazy"></figure>
+<p>Una vez asignadas las vacaciones al trabajador, este podrá visualizar sus días desde su propio panel de usuario. La persona encargada podrá asignar días directamente o gestionar los días propuestos por los empleados previa solicitud de los mismos.</p>
+<p>Es una alternativa de visualización para gestionar las vacaciones, distinta a la del área del calendario.</p>
+</section>
+<section id="sec-documentacion" class="doc">
+<h2 id="documentacion">5. Documentación</h2>
+<p>La sección de Documentación está relacionada con el apartado de documentación de nuestra empresa.</p>
+<figure class=""><img src="img/p46_1.png" alt="Sección de documentación" loading="lazy"></figure>
+<p>En ella podremos visualizar documentos tales como certificados de Empleados (Modelo 145), Nóminas, Retenciones, Solicitudes de Anticipos o Permisos asociados con el programa de Antea Laboral.</p>
+<p>También nos permite subir documentos relacionados con los Gastos y Contratos de los Empleados. Además, contamos con un apartado de Zona Privada donde podremos subir documentos internos que nuestros trabajadores tendrán siempre disponibles.</p>
+<figure class=""><img src="img/p46_2.png" alt="Zona privada de documentación" loading="lazy"></figure>
+</section>
+<section id="sec-manuales" class="man">
+<h2 id="manuales">6. Manual, ayuda y vídeo tutoriales</h2>
+<p>Desde esta opción del menú podrá descargarse este manual en formato PDF, que se irá actualizando con las novedades que introduzcamos, haciendo clic en el botón <strong>Ayuda</strong>.</p>
+<p>Desde la sección <strong>Video Tutorial</strong> podrá acceder a los vídeo tutoriales de este manual.</p>
+<figure class="narrow"><img src="img/p47_1.png" alt="Menú con las opciones Ayuda y Video Tutorial" loading="lazy"></figure>
+<p>Puede descargar el manual completo en formato PDF desde el siguiente enlace: <a href="https://www.anteacheckin.es/wp-content/uploads/2026/09/Manual-CheckIN-Administrador-2026.pdf" target="_blank" rel="noopener"><strong>Descargar manual en PDF</strong></a>.</p>
+</section>
+<section id="sec-contacto" class="contact">
+<h2 id="contacto">¿Necesita ayuda?</h2>
+<p>Nuestro equipo de soporte está a su disposición para cualquier duda o incidencia.</p>
+<p class="contact-lines"><a href="mailto:soporte@anteacheckin.es">soporte@anteacheckin.es</a> <span>·</span> <a href="tel:+34854630286">854 63 02 86</a></p>
+</section>
+</main>
+
+</div>
+
+<div id="lightbox" role="dialog" aria-label="Imagen ampliada"><img alt=""></div>
+<button id="up" aria-label="Volver arriba">↑</button>
+
+<script>
+(function(){
+  var toc=document.getElementById('toc'),list=document.getElementById('toc-list');
+  var main=document.querySelector('main');
+  var none=document.getElementById('no-results');
+
+  /* 1) Árbol plegable a partir de la lista plana de enlaces (l2, l3, l4, l5) */
+  var flat=[].slice.call(list.querySelectorAll(':scope > a'));
+  var nodes={},order=[],stack=[],root=document.createElement('div');
+  flat.forEach(function(a){
+    var lvl=+a.className.match(/l(\d)/)[1],id=a.getAttribute('href').slice(1);
+    var node=document.createElement('div');node.className='node l'+lvl;
+    var row=document.createElement('div');row.className='row';
+    var sp=document.createElement('span');sp.className='spacer';row.appendChild(sp);
+    row.appendChild(a);
+    var kids=document.createElement('div');kids.className='kids';
+    node.appendChild(row);node.appendChild(kids);
+    while(stack.length&&stack[stack.length-1].lvl>=lvl)stack.pop();
+    var parent=stack.length?stack[stack.length-1]:null;
+    (parent?parent.kids:root).appendChild(node);
+    var info={id:id,a:a,node:node,row:row,kids:kids,lvl:lvl,parent:parent,children:[],title:a.textContent,sp:sp};
+    if(parent){parent.children.push(info)}
+    nodes[id]=info;order.push(info);stack.push(info);
+  });
+  order.forEach(function(n){
+    if(n.children.length){
+      var c=document.createElement('button');c.type='button';c.className='caret';
+      c.setAttribute('aria-label','Plegar o desplegar');c.setAttribute('aria-expanded','false');
+      n.row.replaceChild(c,n.sp);n.caret=c;
+      c.addEventListener('click',function(ev){ev.preventDefault();toggle(n)});
+    }
+  });
+  while(list.firstChild)list.removeChild(list.firstChild);
+  while(root.firstChild)list.appendChild(root.firstChild);
+  list.appendChild(none);
+
+  function setOpen(n,open){
+    if(!n.caret)return;
+    n.node.classList.toggle('open',open);
+    n.caret.setAttribute('aria-expanded',open?'true':'false');
+  }
+  function toggle(n){setOpen(n,!n.node.classList.contains('open'))}
+  document.getElementById('exp-all').addEventListener('click',function(){order.forEach(function(n){setOpen(n,true)})});
+  document.getElementById('col-all').addEventListener('click',function(){order.forEach(function(n){setOpen(n,false)});if(cur)openPath(cur)});
+  function openPath(n){for(var p=n.parent;p;p=p.parent)setOpen(p,true)}
+
+  /* 2) Cada título (h2–h5) con su contenido = una "página" */
+  var pages={};
+  [].slice.call(main.querySelectorAll('section')).forEach(function(sec){
+    var kids=[].slice.call(sec.children),cp=null;
+    kids.forEach(function(el){
+      if(/^H[2-5]$/.test(el.tagName)){
+        cp=document.createElement('div');cp.className='page';cp.dataset.id=el.id;
+        sec.insertBefore(cp,el);cp.appendChild(el);pages[el.id]=cp;
+      }else if(cp){cp.appendChild(el)}
+    });
+  });
+  function hasBody(id){return pages[id]&&pages[id].children.length>1}
+
+  /* Texto de cada página (sin acentos ni mayúsculas, misma longitud que el original) para el buscador */
+  function norm(s){var o='';for(var i=0;i<s.length;i++){var c=s.charAt(i).normalize('NFD').charAt(0).toLowerCase();o+=c.charAt(0)||s.charAt(i)}return o}
+  order.forEach(function(n){
+    var pg=pages[n.id],txt=n.title;
+    if(pg){var c=pg.cloneNode(true);[].slice.call(c.querySelectorAll('p,li,h2,h3,h4,h5,div,figure,ul,ol')).forEach(function(e){e.appendChild(document.createTextNode(' '))});txt=c.textContent}
+    n.plain=txt.replace(/\s+/g,' ').trim();n.norm=norm(n.plain);
+  });
+
+  /* Migas de pan y botones Anterior / Siguiente */
+  var readable=order.filter(function(n){return hasBody(n.id)});
+  order.forEach(function(n){
+    var pg=pages[n.id];if(!pg)return;
+    if(n.parent){
+      var cr=document.createElement('div');cr.className='crumbs';
+      var chain=[];for(var p=n.parent;p;p=p.parent)chain.unshift(p);
+      cr.innerHTML=chain.map(function(p){return '<a href="#'+p.id+'">'+p.title+'</a>'}).join('<span>›</span>');
+      pg.insertBefore(cr,pg.firstChild);
+    }
+    var i=readable.indexOf(n);
+    var pr=document.createElement('div');pr.className='pager';
+    if(i>0)pr.innerHTML+='<a class="prev" href="#'+readable[i-1].id+'"><small>← Anterior</small><strong>'+readable[i-1].title+'</strong></a>';
+    if(i>-1&&i<readable.length-1)pr.innerHTML+='<a class="next" href="#'+readable[i+1].id+'"><small>Siguiente →</small><strong>'+readable[i+1].title+'</strong></a>';
+    if(pr.children.length)pg.appendChild(pr);
+  });
+
+  /* 3) Mostrar solo la página elegida */
+  var cur=null,baseTitle=document.title;
+  function show(id){
+    var n=nodes[id];
+    if(!n||!pages[id]){n=readable[0];}
+    if(!hasBody(n.id)){  /* capítulo sin texto propio → primer apartado con contenido */
+      var k=order.indexOf(n),nx=null;
+      for(var j=k+1;j<order.length;j++){if(hasBody(order[j].id)){nx=order[j];break}}
+      if(nx)n=nx;
+    }
+    if(cur)pages[cur.id].classList.remove('on');
+    cur=n;
+    pages[n.id].classList.add('on');
+    order.forEach(function(x){x.row.classList.remove('active')});
+    n.row.classList.add('active');
+    openPath(n);setOpen(n,true);
+    document.title=n.title.replace(/<[^>]+>/g,'')+' · '+baseTitle;
+    var r=n.row.getBoundingClientRect(),tr=toc.getBoundingClientRect();
+    if(window.innerWidth>900&&(r.top<tr.top+30||r.bottom>tr.bottom-30))n.row.scrollIntoView({block:'center'});
+    document.getElementById('up').classList.remove('on');
+    main.classList.remove('searching');
+    afterShow();
+  }
+  function route(){show(decodeURIComponent(location.hash.slice(1)))}
+  window.addEventListener('hashchange',route);
+
+  /* Clic en un apartado con subapartados: además de abrirlo, pliega/despliega */
+  list.addEventListener('click',function(e){
+    var a=e.target.closest('a');if(!a)return;
+    var n=nodes[a.getAttribute('href').slice(1)];
+    if(n&&n.children.length){
+      if(cur===n)toggle(n); else setOpen(n,true);
+    }
+    if(window.innerWidth<=900)toc.classList.remove('open');
+  });
+  /* Enlaces internos del contenido (resultados, migas, anterior/siguiente) */
+  main.addEventListener('click',function(e){
+    var a=e.target.closest('a[href^="#"]');if(!a)return;
+    var id=a.getAttribute('href').slice(1);
+    if(a.classList.contains('res')){e.preventDefault();openResult(id);return}
+    if(cur&&id===cur.id)e.preventDefault();
+  });
+
+  /* Menú móvil */
+  var btn=document.getElementById('menu-btn');
+  btn.addEventListener('click',function(){toc.classList.toggle('open')});
+
+  /* 4) Buscador: resultados con fragmentos en el contenido + resaltado en amarillo */
+  var q=document.getElementById('q'),term='',marks=[],mi=-1,tm;
+  var resBox=document.createElement('div');resBox.id='results';main.insertBefore(resBox,main.firstChild);
+  var fb=document.createElement('div');fb.id='findbar';
+  fb.innerHTML='<span id="fb-text"></span><button type="button" id="fb-prev" title="Coincidencia anterior">↑</button><button type="button" id="fb-next" title="Siguiente coincidencia">↓</button><button type="button" id="fb-list">Volver a resultados</button><button type="button" id="fb-close" title="Cerrar búsqueda">✕</button>';
+  main.insertBefore(fb,main.firstChild);
+  function esc(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+  function clearMarks(){
+    [].slice.call(main.querySelectorAll('mark.hit')).forEach(function(m){
+      var p=m.parentNode;p.replaceChild(document.createTextNode(m.textContent),m);p.normalize();
+    });
+    marks=[];mi=-1;
+  }
+  function highlight(root){
+    clearMarks();if(!term)return;
+    var w=document.createTreeWalker(root,NodeFilter.SHOW_TEXT,{acceptNode:function(nd){
+      if(nd.parentNode.closest('.crumbs,.pager'))return NodeFilter.FILTER_REJECT;
+      return nd.nodeValue.trim()?NodeFilter.FILTER_ACCEPT:NodeFilter.FILTER_REJECT;
+    }});
+    var list=[],nd;while((nd=w.nextNode()))list.push(nd);
+    list.forEach(function(nd){
+      var txt=nd.nodeValue,nt=norm(txt),i=nt.indexOf(term);
+      if(i<0)return;
+      var frag=document.createDocumentFragment(),last=0;
+      while(i>-1){
+        if(i>last)frag.appendChild(document.createTextNode(txt.slice(last,i)));
+        var m=document.createElement('mark');m.className='hit';m.textContent=txt.slice(i,i+term.length);
+        frag.appendChild(m);last=i+term.length;i=nt.indexOf(term,last);
+      }
+      if(last<txt.length)frag.appendChild(document.createTextNode(txt.slice(last)));
+      nd.parentNode.replaceChild(frag,nd);
+    });
+    marks=[].slice.call(root.querySelectorAll('mark.hit'));
+  }
+  function updFb(){
+    document.getElementById('fb-text').textContent='“'+q.value.trim()+'” · '+(marks.length?(mi+1)+' de '+marks.length+' en este apartado':'sin coincidencias en este apartado');
+  }
+  function gotoMark(i){
+    if(!marks.length)return;
+    if(mi>-1)marks[mi].classList.remove('cur');
+    mi=(i+marks.length)%marks.length;
+    marks[mi].classList.add('cur');
+    marks[mi].scrollIntoView({block:'center'});
+    updFb();
+  }
+  function afterShow(){
+    if(term){
+      highlight(pages[cur.id]);
+      main.classList.add('finding');
+      if(marks.length){gotoMark(0)}else{updFb();window.scrollTo({top:0,behavior:'auto'})}
+    }else{
+      window.scrollTo({top:0,behavior:'auto'});
+    }
+  }
+  function filterNav(t){
+    order.forEach(function(n){n.hit=!t||n.norm.indexOf(t)>-1});
+    function vis(n){var v=n.hit;n.children.forEach(function(c){if(vis(c))v=true});n.vis=v;return v}
+    order.filter(function(n){return !n.parent}).forEach(vis);
+    var shown=0;
+    order.forEach(function(n){
+      n.node.classList.toggle('hidden',!n.vis);
+      if(t&&n.vis&&n.children.length)setOpen(n,true);
+      if(n.vis)shown++;
+    });
+    if(!t&&cur){order.forEach(function(n){setOpen(n,false)});openPath(cur);setOpen(cur,true)}
+    none.style.display=(t&&!shown)?'block':'none';
+  }
+  function renderResults(){
+    var raw=q.value.trim(),t=norm(raw);
+    if(t.length<2){exitSearch();return}
+    term=t;clearMarks();
+    var html='',total=0,np=0;
+    readable.forEach(function(n){
+      var hits=[],i=n.norm.indexOf(t);
+      while(i>-1){hits.push(i);i=n.norm.indexOf(t,i+t.length)}
+      if(!hits.length)return;
+      np++;total+=hits.length;
+      var snips=hits.slice(0,3).map(function(h){
+        var a=Math.max(0,h-60),b=Math.min(n.plain.length,h+t.length+90);
+        return (a>0?'…':'')+esc(n.plain.slice(a,h))+'<mark class="rs">'+esc(n.plain.slice(h,h+t.length))+'</mark>'+esc(n.plain.slice(h+t.length,b))+(b<n.plain.length?'…':'');
+      });
+      var path=[];for(var p=n.parent;p;p=p.parent)path.unshift(p.title);
+      html+='<a class="res" href="#'+n.id+'"><span class="res-path">'+esc(path.join(' › '))+'</span>'
+        +'<span class="res-title">'+esc(n.title)+'<em>'+hits.length+(hits.length>1?' coincidencias':' coincidencia')+'</em></span>'
+        +snips.map(function(s){return '<span class="res-snip">'+s+'</span>'}).join('')+'</a>';
+    });
+    resBox.innerHTML=total
+      ?'<h2 class="res-h">'+total+(total>1?' coincidencias':' coincidencia')+' en '+np+(np>1?' apartados':' apartado')+' para “'+esc(raw)+'”</h2>'+html
+      :'<h2 class="res-h">Sin resultados para “'+esc(raw)+'”</h2><p>Prueba con otra palabra o con menos letras.</p>';
+    main.classList.add('searching');main.classList.remove('finding');
+    filterNav(t);
+    window.scrollTo({top:0,behavior:'auto'});
+  }
+  function exitSearch(){
+    term='';clearMarks();resBox.innerHTML='';
+    main.classList.remove('searching','finding');
+    filterNav('');
+  }
+  function openResult(id){
+    main.classList.remove('searching');
+    if(cur&&cur.id===id){afterShow()}else{location.hash=id}
+  }
+  q.addEventListener('input',function(){
+    clearTimeout(tm);
+    tm=setTimeout(function(){if(q.value.trim().length<2){exitSearch()}else{renderResults()}},120);
+  });
+  q.addEventListener('keydown',function(e){
+    if(e.key==='Enter'){
+      e.preventDefault();clearTimeout(tm);
+      var t=norm(q.value.trim());
+      if(t.length<2)return;
+      if(t!==term)renderResults();
+      if(main.classList.contains('finding')){gotoMark(mi+(e.shiftKey?-1:1))}
+      else{var a=resBox.querySelector('a.res');if(a){openResult(a.getAttribute('href').slice(1));if(window.innerWidth<=900)toc.classList.remove('open')}}
+    }else if(e.key==='Escape'){q.value='';exitSearch()}
+  });
+  document.getElementById('fb-prev').addEventListener('click',function(){gotoMark(mi-1)});
+  document.getElementById('fb-next').addEventListener('click',function(){gotoMark(mi+1)});
+  document.getElementById('fb-list').addEventListener('click',function(){renderResults()});
+  document.getElementById('fb-close').addEventListener('click',function(){q.value='';exitSearch();window.scrollTo({top:0,behavior:'auto'})});
+
+  /* Subir */
+  var up=document.getElementById('up');
+  window.addEventListener('scroll',function(){up.classList.toggle('on',window.scrollY>600)},{passive:true});
+  up.addEventListener('click',function(){window.scrollTo({top:0})});
+
+  /* Ampliar imágenes */
+  var lb=document.getElementById('lightbox'),lbi=lb.querySelector('img');
+  main.addEventListener('click',function(e){
+    var im=e.target;
+    if(im.tagName==='IMG'&&im.closest('figure')){lbi.src=im.src;lbi.alt=im.alt;lb.classList.add('on')}
+  });
+  lb.addEventListener('click',function(){lb.classList.remove('on')});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')lb.classList.remove('on')});
+
+  route();
+})();
+</script>
+</body>
+</html>
